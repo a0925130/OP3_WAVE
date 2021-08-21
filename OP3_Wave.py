@@ -20,7 +20,7 @@ op3StartPos = [0, 0, 1]
 op3StartOrientation = p.getQuaternionFromEuler([0, 0, 0])
 robot = p.loadURDF("robotis_op3.urdf", op3StartPos, op3StartOrientation)
 circleStartPos = [0.14820810926653658, 0.11138307132884889, 0.32432147609577605]
-circle = p.loadURDF("OP3_WAVE/ball.urdf", circleStartPos)
+circle = p.loadURDF("ball.urdf", circleStartPos)
 
 numJoints = p.getNumJoints(robot)
 for joint in range(numJoints):
