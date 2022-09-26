@@ -2,8 +2,8 @@ import time
 import numpy as np
 import pybullet_data
 import pybullet as p
-from niapy.benchmarks import Benchmark
-from niapy.task import StoppingTask, OptimizationType
+from niapy.problems import Problem
+from niapy.task import Task, OptimizationType
 from niapy.algorithms.basic import ParticleSwarmOptimization
 import matplotlib.pyplot as plt
 
@@ -42,27 +42,25 @@ def run(sol):
         # time.sleep(0.05)
 
 
-class MyBenchmark(Benchmark):
+class MyBenchmark(Problem):
     def __init__(self):
-        Benchmark.__init__(self, -1, 1)
+        Problem.__init__(self, dimension=18, lower=-1, upper=1)
         self.fitness_list = []
         self.best_motor = []
         self.best_val = best_val
 
-    def function(self):
-        def evaluate(D, sol):
-            run(np.array(motor) - np.array(sol))
-            # time.sleep(0.1)
-            pos = p.getLinkState(robot, l_el)
-            val = np.linalg.norm((np.array(pos[0]) - np.array(circleStartPos)))
-            if val < self.best_val:
-                self.best_motor = sol
-                self.best_val = val
-            self.fitness_list.append(val)
-            p.resetBasePositionAndOrientation(bodyUniqueId=robot, posObj=StartPos[0], ornObj=op3StartOrientation)
-            return val
+    def _evaluate(self, sol):
+        run(np.array(motor) - np.array(sol))
+        # time.sleep(0.1)
+        pos = p.getLinkState(robot, l_el)
+        val = np.linalg.norm((np.array(pos[0]) - np.array(circleStartPos)))
+        if val < self.best_val:
+            self.best_motor = sol
+            self.best_val = val
+        self.fitness_list.append(val)
+        p.resetBasePositionAndOrientation(bodyUniqueId=robot, posObj=StartPos[0], ornObj=op3StartOrientation)
+        return val
 
-        return evaluate
 
 
 p.setRealTimeSimulation(1)
@@ -73,7 +71,7 @@ my_bench = MyBenchmark()
 ngen = 20
 np1 = 10
 
-task = StoppingTask(dimension=18, max_iters=ngen, optimization_type=OptimizationType.MINIMIZATION, benchmark=my_bench, enable_logging=True)
+task = Task(max_iters=ngen, optimization_type=OptimizationType.MINIMIZATION, problem=my_bench, enable_logging=True)
 algo = ParticleSwarmOptimization(NP=np1, vMin=-1, vMax=1)
 best = algo.run(task)
 
